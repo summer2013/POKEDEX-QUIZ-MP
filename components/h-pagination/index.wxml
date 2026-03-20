@@ -1,0 +1,25 @@
+<view class="h-pagination">
+  <button
+    class="page-btn page-btn--prev"
+    disabled="{{page === 1}}"
+    bindtap="handlePrev"
+  >
+    <text class="page-arrow">←</text>
+    <text class="page-text">Previous</text>
+  </button>
+
+  <view class="page-info">
+    <text class="page-current">{{page}}</text>
+    <text class="page-separator">/</text>
+    <text class="page-total">{{totalPages || '?'}}</text>
+  </view>
+
+  <button
+    class="page-btn page-btn--next"
+    disabled="{{!hasMore}}"
+    bindtap="handleNext"
+  >
+    <text class="page-text">Next</text>
+    <text class="page-arrow">→</text>
+  </button>
+</view>

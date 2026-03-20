@@ -1,0 +1,6 @@
+<view class="h-empty">
+  <text class="h-empty__icon" wx:if="{{icon}}">{{icon}}</text>
+  <text class="h-empty__title">{{title}}</text>
+  <text class="h-empty__desc" wx:if="{{description}}">{{description}}</text>
+  <slot name="action"></slot>
+</view>

@@ -1,0 +1,30 @@
+<view wx:if="{{species}}" class="species-card" style="{{cardStyle}}">
+  <view class="species-card__header">
+    <text class="species-card__name">{{species.name}}</text>
+    <view class="species-card__capture">
+      <text class="species-card__capture-label">Capture Rate</text>
+      <view class="species-card__capture-row">
+        <text class="species-card__capture-value">{{species.capture_rate}}</text>
+        <view class="species-card__rate-bar">
+          <view class="species-card__rate-fill" style="width: {{species.ratePercent}}%"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="species-card__list">
+    <text class="species-card__list-title">Varieties</text>
+    <view
+      class="species-card__item"
+      wx:for="{{species.pokemons}}"
+      wx:for-item="pokemon"
+      wx:key="id"
+      bindtap="onVarietyTap"
+      data-id="{{pokemon.id}}"
+      data-name="{{pokemon.name}}"
+    >
+      <text class="species-card__item-name">{{pokemon.name}}</text>
+      <text class="species-card__item-arrow">→</text>
+    </view>
+  </view>
+</view>

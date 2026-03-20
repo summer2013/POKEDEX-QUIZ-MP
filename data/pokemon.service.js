@@ -1,11 +1,7 @@
-/**
- * GraphQL Queries - Fragment 复用和查询组合
- * 这是企业级GraphQL管理的核心实现
- */
+// data/pokemon.service.js
+const request = require('../utils/request');
 
-// ==================== Fragments ====================
 const Fragments = {
-  // Pokemon Color Fragment
   PokemonColor: `
     fragment PokemonColorFragment on pokemon_v2_pokemoncolor {
       id
@@ -13,7 +9,6 @@ const Fragments = {
     }
   `,
 
-  // Basic Pokemon Fragment  
   BasicPokemon: `
     fragment BasicPokemonFragment on pokemon_v2_pokemon {
       id
@@ -23,7 +18,6 @@ const Fragments = {
     }
   `,
 
-  // Ability Effect Fragment
   AbilityEffect: `
     fragment AbilityEffectFragment on pokemon_v2_abilityeffecttext {
       effect
@@ -31,7 +25,6 @@ const Fragments = {
     }
   `,
 
-  // Pokemon Ability Fragment (组合AbilityEffect)
   PokemonAbility: `
     fragment PokemonAbilityFragment on pokemon_v2_pokemonability {
       id
@@ -47,7 +40,6 @@ const Fragments = {
     }
   `,
 
-  // Pokemon Type Fragment
   PokemonType: `
     fragment PokemonTypeFragment on pokemon_v2_pokemontype {
       slot
@@ -59,12 +51,7 @@ const Fragments = {
   `,
 };
 
-// ==================== Queries ====================
 const Queries = {
-  /**
-   * 搜索 Pokemon Species
-   * 展示Fragment组合的威力
-   */
   searchSpecies: `
     ${Fragments.PokemonColor}
     ${Fragments.BasicPokemon}
@@ -86,13 +73,17 @@ const Queries = {
           ...BasicPokemonFragment
         }
       }
+
+      pokemon_v2_pokemonspecies_aggregate(
+        where: {name: {_ilike: $searchTerm}}
+      ) {
+        aggregate {
+          count
+        }
+      }
     }
   `,
 
-  /**
-   * 获取 Pokemon 详情
-   * 展示多层Fragment嵌套
-   */
   getPokemonDetail: `
     ${Fragments.PokemonType}
     ${Fragments.AbilityEffect}
@@ -118,54 +109,66 @@ const Queries = {
   `,
 };
 
-// ==================== GraphQL Client ====================
+
 class GraphQLClient {
   constructor() {
     this.endpoint = 'https://beta.pokeapi.co/graphql/v1beta';
-    this.timeout = 10000;
   }
 
   async query(queryString, variables) {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        reject(new Error('Request timeout'));
-      }, this.timeout);
-
-      wx.request({
-        url: this.endpoint,
-        method: 'POST',
-        header: {'Content-Type': 'application/json'},
-        data: {query: queryString, variables},
-        success: (res) => {
-          clearTimeout(timer);
-          if (res.statusCode === 200 && res.data.data) {
-            resolve(res.data.data);
-          } else {
-            reject(new Error(res.data.errors?.[0]?.message || 'Query failed'));
-          }
-        },
-        fail: (err) => {
-          clearTimeout(timer);
-          reject(new Error(err.errMsg || 'Network error'));
-        }
-      });
+    const body = await request.post(this.endpoint, {
+      query: queryString,
+      variables,
     });
+
+    if (body.errors && body.errors.length) {
+      throw new Error(body.errors[0].message || 'GraphQL error');
+    }
+    if (body.data == null) {
+      throw new Error('Invalid GraphQL response');
+    }
+
+    return body.data;
   }
 }
 
-// ==================== Repository ====================
+const MAX_CACHE_SIZE = 200;
+
 class PokemonRepository {
   constructor() {
     this.client = new GraphQLClient();
     this.cache = new Map();
+    this.maxCacheSize = MAX_CACHE_SIZE;
+  }
+
+  getCache(key) {
+    if (!this.cache.has(key)) return null;
+    const value = this.cache.get(key);
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+
+  setCache(key, value) {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    }
+    this.cache.set(key, value);
+
+    if (this.cache.size > this.maxCacheSize) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey !== undefined) {
+        this.cache.delete(oldestKey);
+      }
+    }
   }
 
   async searchSpecies(searchTerm, limit = 10, offset = 0) {
     const cacheKey = `search:${searchTerm}:${limit}:${offset}`;
     
-    if (this.cache.has(cacheKey)) {
-      console.log('✅ Cache hit:', cacheKey);
-      return this.cache.get(cacheKey);
+    const cached = this.getCache(cacheKey);
+    if (cached) {
+      return cached;
     }
 
     const variables = {
@@ -176,21 +179,24 @@ class PokemonRepository {
 
     const data = await this.client.query(Queries.searchSpecies, variables);
     
+    const species = data.pokemon_v2_pokemonspecies || [];
+    const total = data.pokemon_v2_pokemonspecies_aggregate?.aggregate?.count || 0;
     const result = {
-      species: data.pokemon_v2_pokemonspecies || [],
-      hasMore: (data.pokemon_v2_pokemonspecies || []).length === limit
+      species,
+      total,
+      hasMore: offset + species.length < total,
     };
 
-    this.cache.set(cacheKey, result);
+    this.setCache(cacheKey, result);
     return result;
   }
 
   async getPokemonById(pokemonId) {
     const cacheKey = `pokemon:${pokemonId}`;
     
-    if (this.cache.has(cacheKey)) {
-      console.log('✅ Cache hit:', cacheKey);
-      return this.cache.get(cacheKey);
+    const cached = this.getCache(cacheKey);
+    if (cached) {
+      return cached;
     }
 
     const data = await this.client.query(Queries.getPokemonDetail, {pokemonId});
@@ -200,12 +206,11 @@ class PokemonRepository {
     }
 
     const pokemon = data.pokemon_v2_pokemon[0];
-    this.cache.set(cacheKey, pokemon);
+    this.setCache(cacheKey, pokemon);
     return pokemon;
   }
 }
 
-// ==================== Service ====================
 class PokemonService {
   constructor() {
     this.repository = new PokemonRepository();
@@ -229,7 +234,6 @@ class PokemonService {
   }
 }
 
-// ==================== Export ====================
 module.exports = {
   PokemonService,
   PokemonRepository,

@@ -1,8 +1,3 @@
-/**
- * Luxury Color System
- * 将 Pokemon 颜色映射为奢华品牌配色
- */
-
 const LUXURY_COLORS = {
   black: {
     bg: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
@@ -89,7 +84,9 @@ function formatPokemonId(id) {
 }
 
 function getCaptureRatePercent(rate) {
-  return Math.min((rate / 255) * 100, 100);
+  const n = Number(rate);
+  if (Number.isNaN(n)) return 0;
+  return Math.min((n / 255) * 100, 100);
 }
 
 module.exports = {

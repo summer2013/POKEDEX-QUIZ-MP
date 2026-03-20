@@ -1,4 +1,10 @@
 {
   "navigationBarTitleText": "Hilton Pokédex",
-  "enablePullDownRefresh": false
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "h-pagination": "/components/h-pagination/index",
+    "h-loading": "/components/h-loading/index",
+    "h-empty": "/components/h-empty/index",
+    "species-card": "/components/species-card/index"
+  }
 }

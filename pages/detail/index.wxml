@@ -1,13 +1,7 @@
 <view class="detail-page">
-  <!-- 加载状态 -->
-  <view class="loading-container" wx:if="{{loading}}">
-    <view class="spinner"></view>
-    <text class="loading-text">Loading...</text>
-  </view>
+  <h-loading show="{{loading}}" text="{{loadingText}}" full="{{true}}" />
 
-  <!-- 详情内容 -->
   <view class="detail-content" wx:if="{{!loading && pokemon}}">
-    <!-- Hero 区域 -->
     <view class="hero" style="{{heroStyle}}">
       <view class="hero-decoration"></view>
       <view class="pokemon-id">
@@ -22,7 +16,6 @@
       </view>
     </view>
 
-    <!-- 统计信息 -->
     <view class="stats-section">
       <text class="section-title">Statistics</text>
       <view class="stats-grid">
@@ -44,7 +37,6 @@
       </view>
     </view>
 
-    <!-- 能力列表 -->
     <view class="abilities-section" wx:if="{{pokemon.abilities && pokemon.abilities.length > 0}}">
       <text class="section-title">Abilities</text>
       <view class="abilities-list">
@@ -63,21 +55,23 @@
       </view>
     </view>
 
-    <!-- 返回按钮 -->
     <button class="back-btn" bindtap="goBack">
       <text class="back-arrow">←</text>
       <text class="back-text">Back to Collection</text>
     </button>
   </view>
 
-  <!-- 错误状态 -->
-  <view class="error-state" wx:if="{{!loading && !pokemon}}">
-    <text class="error-icon">❌</text>
-    <text class="error-title">Pokémon Not Found</text>
-    <text class="error-text">Unable to load details</text>
-    <button class="back-btn" bindtap="goBack">
-      <text class="back-arrow">←</text>
-      <text class="back-text">Back to Collection</text>
-    </button>
-  </view>
+  <h-empty
+    wx:if="{{!loading && !pokemon}}"
+    icon="❌"
+    title="Pokémon Not Found"
+    description="Unable to load details"
+  >
+    <view slot="action" class="w-full">
+      <button class="back-btn" bindtap="goBack">
+        <text class="back-arrow">←</text>
+        <text class="back-text">Back to Collection</text>
+      </button>
+    </view>
+  </h-empty>
 </view>

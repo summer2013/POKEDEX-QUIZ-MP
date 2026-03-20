@@ -1,0 +1,4 @@
+<view class="h-loading {{full ? 'h-loading--full' : ''}}" wx:if="{{show}}">
+  <view class="h-loading__spinner"></view>
+  <text class="h-loading__text">{{text}}</text>
+</view>

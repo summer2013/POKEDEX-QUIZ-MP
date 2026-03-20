@@ -1,10 +1,6 @@
-/**
- * Hilton Pokédex - 奢华设计系统
- * Luxury Design System
- */
+@import './styles/utilities.wxss';
 
 page {
-  /* ===== 品牌色彩 ===== */
   --color-primary: #c9a961;
   --color-primary-dark: #a08747;
   --color-primary-light: #e4d4a8;
@@ -19,31 +15,26 @@ page {
   
   --color-border: rgba(201, 169, 97, 0.2);
   --color-border-subtle: rgba(255, 255, 255, 0.1);
-  
-  /* ===== 阴影系统 ===== */
+
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 20px rgba(201, 169, 97, 0.3);
-  
-  /* ===== 圆角 ===== */
+
   --radius-sm: 8rpx;
   --radius-md: 16rpx;
   --radius-lg: 24rpx;
-  
-  /* ===== 间距 ===== */
+
   --spacing-xs: 12rpx;
   --spacing-sm: 16rpx;
   --spacing-md: 24rpx;
   --spacing-lg: 32rpx;
   --spacing-xl: 48rpx;
   --spacing-xxl: 64rpx;
-  
-  /* ===== 字体 ===== */
+
   --font-serif: Georgia, 'Times New Roman', serif;
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  
-  /* ===== 动画 ===== */
+
   --duration-fast: 200ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
@@ -57,7 +48,6 @@ page {
   line-height: 1.6;
 }
 
-/* ===== 全局动画 ===== */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20rpx); }
   to { opacity: 1; transform: translateY(0); }
@@ -82,7 +72,6 @@ page {
   50% { opacity: 1; transform: scale(1.05); }
 }
 
-/* ===== 工具类 ===== */
 .container {
   padding: var(--spacing-lg);
   min-height: 100vh;

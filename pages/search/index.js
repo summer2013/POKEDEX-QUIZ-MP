@@ -1,146 +1,165 @@
-/**
- * 搜索页面
- * 展示企业级架构：Service层调用、防抖、缓存
- */
-
-const { PokemonService } = require('../../data/pokemon.service');
 const { getCardStyle, getCaptureRatePercent } = require('../../utils/formatters');
+const PaginationMixin = require('../../mixins/pagination.mixin');
+const LoadingMixin = require('../../mixins/loading.mixin');
+const { debounce, vibrateLight } = require('../../utils/performance');
+const { handleError } = require('../../utils/error-handler');
 
-let searchTimeout = null;
-const DEBOUNCE_DELAY = 600;
+const { data: paginationData, ...paginationMethods } = PaginationMixin;
+const { data: loadingData, ...loadingMethods } = LoadingMixin;
 
-Page({
-  data: {
-    showWelcome: false,
-    searchTerm: '',
-    results: [],
-    loading: false,
-    searched: false,
-    page: 1,
-    pageSize: 8,
-    hasMore: false,
-  },
+Page(
+  Object.assign({}, paginationMethods, loadingMethods, {
+    data: Object.assign({}, paginationData, loadingData, {
+      showWelcome: false,
+      searchTerm: '',
+      results: [],
+      searched: false,
+      total: 0,
+      totalPages: 0,
+    }),
 
-  pokemonService: null,
+    pokemonService: null,
 
-  onLoad() {
-    // 从IoC容器获取服务（模拟）
-    this.pokemonService = new PokemonService();
-    
-    // 检查首次启动
-    const app = getApp();
-    if (app.globalData.isFirstLaunch) {
-      this.setData({ showWelcome: true });
-      app.globalData.isFirstLaunch = false;
-    }
-  },
+    onLoad() {
+      const app = getApp();
+      this.pokemonService = app.getService('pokemonService');
+      this.initPagination(8);
 
-  hideWelcome() {
-    this.setData({ showWelcome: false });
-    wx.vibrateShort({ type: 'light' });
-  },
+      this.debouncedSearch = debounce(() => {
+        if (this.data.searchTerm) {
+          this.performSearch();
+        }
+      }, 600);
 
-  stopPropagation() {
-    // 阻止事件冒泡
-  },
+      if (app.globalData.isFirstLaunch) {
+        this.setData({ showWelcome: true });
+        app.globalData.isFirstLaunch = false;
+      }
+    },
 
-  onSearchInput(e) {
-    const value = e.detail.value.trim();
-    this.setData({ searchTerm: value, page: 1 });
-
-    // 清除之前的定时器
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    // 空值清空结果
-    if (!value) {
-      this.setData({ results: [], searched: false });
-      return;
-    }
-
-    // 防抖搜索
-    searchTimeout = setTimeout(() => {
+    onPageChange() {
       this.performSearch();
-    }, DEBOUNCE_DELAY);
-  },
+    },
 
-  onSearch() {
-    if (this.data.searchTerm) {
-      this.performSearch();
-    }
-  },
+    onPaginationPrev(e) {
+      const next = e.detail && e.detail.page;
+      if (typeof next === 'number' && next >= 1) {
+        this.setData({ page: next }, () => this.performSearch());
+      }
+    },
 
-  async performSearch() {
-    const { searchTerm, page, pageSize } = this.data;
+    onPaginationNext(e) {
+      const next = e.detail && e.detail.page;
+      if (typeof next === 'number') {
+        this.setData({ page: next }, () => this.performSearch());
+      }
+    },
 
-    if (!searchTerm) return;
+    hideWelcome() {
+      this.setData({ showWelcome: false });
+      vibrateLight();
+    },
 
-    this.setData({ loading: true });
+    stopPropagation() {},
 
-    try {
-      const result = await this.pokemonService.search(searchTerm, page, pageSize);
-
-      // 格式化结果
-      const formattedResults = result.species.map(species => ({
-        id: species.id,
-        name: species.name,
-        capture_rate: species.capture_rate,
-        ratePercent: getCaptureRatePercent(species.capture_rate),
-        pokemons: species.pokemon_v2_pokemons.map(p => ({
-          id: p.id,
-          name: p.name
-        })),
-        style: getCardStyle(species.pokemon_v2_pokemoncolor?.name)
-      }));
-
+    onSearchInput(e) {
+      const value = e.detail.value.trim();
+      if (!value) {
+        this.setData({
+          searchTerm: '',
+          results: [],
+          searched: false,
+          totalPages: 0,
+          page: 1,
+          hasMore: false,
+        });
+        return;
+      }
       this.setData({
-        results: formattedResults,
-        hasMore: result.hasMore,
-        loading: false,
-        searched: true
+        searchTerm: value,
+        page: 1,
+        hasMore: false,
+        totalPages: 0,
       });
+      this.debouncedSearch();
+    },
 
-      wx.vibrateShort({ type: 'light' });
+    onSearch() {
+      if (this.data.searchTerm) {
+        this.setData({ page: 1, hasMore: false, totalPages: 0 }, () => {
+          this.performSearch();
+        });
+      }
+    },
 
-    } catch (error) {
-      console.error('Search error:', error);
-      wx.showToast({
-        title: error.message || 'Search failed',
-        icon: 'none'
+    async performSearch() {
+      const { searchTerm, page, pageSize } = this.data;
+
+      if (!searchTerm) return;
+
+      try {
+        await this.withLoading(async () => {
+          const result = await this.pokemonService.search(searchTerm, page, pageSize);
+
+          const formattedResults = result.species.map((species) => ({
+            id: species.id,
+            name: species.name,
+            capture_rate: species.capture_rate,
+            ratePercent: getCaptureRatePercent(species.capture_rate),
+            pokemons: (species.pokemon_v2_pokemons || []).map((p) => ({
+              id: p.id,
+              name: p.name,
+            })),
+            style: getCardStyle(species.pokemon_v2_pokemoncolor?.name),
+          }));
+
+          const total = result.total || 0;
+          const totalPages = Math.ceil(total / pageSize);
+
+          this.setData({
+            results: formattedResults,
+            hasMore: result.hasMore,
+            searched: true,
+            total,
+            totalPages,
+          });
+
+          vibrateLight();
+        }, 'Searching...');
+      } catch (error) {
+        handleError(error, 'SearchPage.performSearch');
+        this.setData({
+          searched: true,
+          results: [],
+          hasMore: false,
+          total: 0,
+          totalPages: 0,
+        });
+      }
+    },
+
+    navigateToPokemon(id, name) {
+      vibrateLight();
+      const q = `id=${encodeURIComponent(String(id))}`;
+      const n =
+        name != null && String(name).length > 0
+          ? `&name=${encodeURIComponent(String(name))}`
+          : '';
+      wx.navigateTo({
+        url: `/pages/detail/index?${q}${n}`,
       });
-      this.setData({ loading: false, searched: true });
-    }
-  },
+    },
 
-  goToDetail(e) {
-    const { id, name } = e.currentTarget.dataset;
-    wx.vibrateShort({ type: 'light' });
-    wx.navigateTo({
-      url: `/pages/detail/index?id=${id}&name=${name}`
-    });
-  },
+    onSpeciesVarietyTap(e) {
+      const { id, name } = e.detail;
+      this.navigateToPokemon(id, name);
+    },
 
-  prevPage() {
-    if (this.data.page > 1) {
-      this.setData({ page: this.data.page - 1 }, () => {
-        this.performSearch();
-      });
-    }
-  },
-
-  nextPage() {
-    if (this.data.hasMore) {
-      this.setData({ page: this.data.page + 1 }, () => {
-        this.performSearch();
-      });
-    }
-  },
-
-  onShareAppMessage() {
-    return {
-      title: 'Hilton Pokédex - Discover Pokémon',
-      path: '/pages/search/index'
-    };
-  }
-});
+    onShareAppMessage() {
+      return {
+        title: 'Hilton Pokédex - Discover Pokémon',
+        path: '/pages/search/index',
+      };
+    },
+  })
+);

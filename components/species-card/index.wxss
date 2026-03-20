@@ -1,0 +1,103 @@
+.species-card {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1rpx solid;
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+.species-card__header {
+  padding-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.species-card__name {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 48rpx;
+  font-weight: 400;
+  text-transform: capitalize;
+  margin-bottom: var(--spacing-md);
+}
+
+.species-card__capture {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.species-card__capture-label {
+  font-size: 22rpx;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.species-card__capture-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.species-card__capture-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  min-width: 60rpx;
+}
+
+.species-card__rate-bar {
+  flex: 1;
+  height: 6rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3rpx;
+  overflow: hidden;
+}
+
+.species-card__rate-fill {
+  height: 100%;
+  background: currentColor;
+  border-radius: 3rpx;
+  transition: width 0.6s ease;
+}
+
+.species-card__list {
+  margin-top: var(--spacing-md);
+}
+
+.species-card__list-title {
+  display: block;
+  font-size: 22rpx;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--spacing-md);
+}
+
+.species-card__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  transition: all 0.3s ease;
+}
+
+.species-card__item:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(8rpx);
+}
+
+.species-card__item-name {
+  font-size: 30rpx;
+  text-transform: capitalize;
+}
+
+.species-card__item-arrow {
+  font-size: 28rpx;
+  opacity: 0.6;
+}

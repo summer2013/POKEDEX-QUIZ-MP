@@ -1,9 +1,5 @@
-/**
- * Hilton Pokédex - Application Entry
- * 企业级微信小程序架构
- */
+const { PokemonService } = require('./data/pokemon.service');
 
-// ==================== IoC Container ====================
 class Container {
   constructor() {
     this.services = new Map();
@@ -42,7 +38,6 @@ class Container {
   }
 }
 
-// ==================== Application ====================
 App({
   container: null,
 
@@ -52,14 +47,13 @@ App({
   },
 
   onLaunch() {
-    console.log('🚀 Hilton Pokédex Launched');
     this.initContainer();
     this.checkFirstLaunch();
   },
 
   initContainer() {
     this.container = Container.getInstance();
-    console.log('📦 IoC Container initialized');
+    this.container.registerSingleton('pokemonService', () => new PokemonService());
   },
 
   checkFirstLaunch() {
@@ -70,7 +64,7 @@ App({
         wx.setStorageSync('hasLaunched', true);
       }
     } catch (e) {
-      console.error('Storage error:', e);
+      this.globalData.isFirstLaunch = true;
     }
   },
 
