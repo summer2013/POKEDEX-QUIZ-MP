@@ -1,4 +1,4 @@
-# Hilton Pokédex
+# Pokédex quiz MP
 
 微信小程序：基于 [PokéAPI GraphQL (beta)](https://beta.pokeapi.co/graphql/v1beta) 的物种搜索与宝可梦详情示例。
 
