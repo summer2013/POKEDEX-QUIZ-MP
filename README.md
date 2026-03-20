@@ -2,9 +2,6 @@
 
 微信小程序：基于 [PokéAPI GraphQL (beta)](https://beta.pokeapi.co/graphql/v1beta) 的物种搜索与宝可梦详情示例。
 
-# 演示视频
-
-https://github.com/user/repo/assets/12345/video.mov
 
 ## 技术栈
 
