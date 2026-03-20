@@ -1,0 +1,122 @@
+/**
+ * Hilton Pokédex - 奢华设计系统
+ * Luxury Design System
+ */
+
+page {
+  /* ===== 品牌色彩 ===== */
+  --color-primary: #c9a961;
+  --color-primary-dark: #a08747;
+  --color-primary-light: #e4d4a8;
+  
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-tertiary: #2a2a2a;
+  
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #c9c9c9;
+  --color-text-tertiary: #9a9a9a;
+  
+  --color-border: rgba(201, 169, 97, 0.2);
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  
+  /* ===== 阴影系统 ===== */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(201, 169, 97, 0.3);
+  
+  /* ===== 圆角 ===== */
+  --radius-sm: 8rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+  
+  /* ===== 间距 ===== */
+  --spacing-xs: 12rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 48rpx;
+  --spacing-xxl: 64rpx;
+  
+  /* ===== 字体 ===== */
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  
+  /* ===== 动画 ===== */
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-luxury: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* ===== 全局动画 ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* ===== 工具类 ===== */
+.container {
+  padding: var(--spacing-lg);
+  min-height: 100vh;
+}
+
+.fade-in {
+  animation: fadeIn var(--duration-normal) var(--ease-standard) forwards;
+}
+
+.text-h1 {
+  font-family: var(--font-serif);
+  font-size: 64rpx;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--color-primary);
+}
+
+.text-h2 {
+  font-family: var(--font-serif);
+  font-size: 48rpx;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.text-body {
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.text-caption {
+  font-size: 24rpx;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}

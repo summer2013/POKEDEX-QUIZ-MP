@@ -1,0 +1,83 @@
+<view class="detail-page">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text class="loading-text">Loading...</text>
+  </view>
+
+  <!-- 详情内容 -->
+  <view class="detail-content" wx:if="{{!loading && pokemon}}">
+    <!-- Hero 区域 -->
+    <view class="hero" style="{{heroStyle}}">
+      <view class="hero-decoration"></view>
+      <view class="pokemon-id">
+        <text class="id-label">No.</text>
+        <text class="id-value">{{pokemonId}}</text>
+      </view>
+      <text class="pokemon-name">{{pokemon.name}}</text>
+      <view class="types" wx:if="{{pokemon.types}}">
+        <view class="type-badge" wx:for="{{pokemon.types}}" wx:key="id">
+          <text class="type-text">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 统计信息 -->
+    <view class="stats-section">
+      <text class="section-title">Statistics</text>
+      <view class="stats-grid">
+        <view class="stat-card">
+          <text class="stat-icon">⚖️</text>
+          <text class="stat-label">Weight</text>
+          <text class="stat-value">{{pokemon.weight}} kg</text>
+        </view>
+        <view class="stat-card">
+          <text class="stat-icon">📏</text>
+          <text class="stat-label">Height</text>
+          <text class="stat-value">{{pokemon.height}} m</text>
+        </view>
+        <view class="stat-card" wx:if="{{pokemon.baseExperience}}">
+          <text class="stat-icon">⭐</text>
+          <text class="stat-label">Base XP</text>
+          <text class="stat-value">{{pokemon.baseExperience}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 能力列表 -->
+    <view class="abilities-section" wx:if="{{pokemon.abilities && pokemon.abilities.length > 0}}">
+      <text class="section-title">Abilities</text>
+      <view class="abilities-list">
+        <view class="ability-card" wx:for="{{pokemon.abilities}}" wx:key="id">
+          <view class="ability-header">
+            <view class="ability-name-group">
+              <text class="ability-name">{{item.name}}</text>
+              <view class="ability-badge" wx:if="{{item.isHidden}}">
+                <text class="badge-text">Hidden</text>
+              </view>
+            </view>
+            <text class="ability-slot">Slot {{item.slot}}</text>
+          </view>
+          <text class="ability-effect" wx:if="{{item.effect}}">{{item.effect}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 返回按钮 -->
+    <button class="back-btn" bindtap="goBack">
+      <text class="back-arrow">←</text>
+      <text class="back-text">Back to Collection</text>
+    </button>
+  </view>
+
+  <!-- 错误状态 -->
+  <view class="error-state" wx:if="{{!loading && !pokemon}}">
+    <text class="error-icon">❌</text>
+    <text class="error-title">Pokémon Not Found</text>
+    <text class="error-text">Unable to load details</text>
+    <button class="back-btn" bindtap="goBack">
+      <text class="back-arrow">←</text>
+      <text class="back-text">Back to Collection</text>
+    </button>
+  </view>
+</view>

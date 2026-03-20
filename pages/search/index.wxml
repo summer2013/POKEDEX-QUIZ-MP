@@ -1,0 +1,115 @@
+<view class="search-page">
+  <!-- 欢迎模态框 -->
+  <view class="welcome-modal" wx:if="{{showWelcome}}" catchtap="hideWelcome">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-icon">⚡</view>
+      <text class="modal-title">Welcome to</text>
+      <text class="modal-brand">Hilton Pokédex</text>
+      <text class="modal-subtitle">An Exclusive Digital Experience</text>
+      <button class="modal-btn" bindtap="hideWelcome">
+        Begin Your Journey →
+      </button>
+    </view>
+  </view>
+
+  <view class="container {{showWelcome ? 'blur' : ''}}">
+    <!-- 头部 -->
+    <view class="header">
+      <view class="header-decoration"></view>
+      <text class="header-brand">Hilton</text>
+      <text class="header-title">Pokédex</text>
+      <text class="header-subtitle">Curated Collection</text>
+    </view>
+
+    <!-- 搜索框 -->
+    <view class="search-box">
+      <view class="search-input-wrapper">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Search Pokémon..."
+          placeholder-class="placeholder"
+          value="{{searchTerm}}"
+          bindinput="onSearchInput"
+          bindconfirm="onSearch"
+        />
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading" wx:if="{{loading}}">
+      <view class="spinner"></view>
+      <text class="loading-text">Searching...</text>
+    </view>
+
+    <!-- 搜索结果 -->
+    <view class="results" wx:if="{{!loading && results.length > 0}}">
+      <view class="results-header">
+        <text class="results-count">{{results.length}} Species Found</text>
+      </view>
+
+      <view
+        class="species-card"
+        wx:for="{{results}}"
+        wx:key="id"
+        style="{{item.style}}"
+      >
+        <view class="card-header">
+          <text class="species-name">{{item.name}}</text>
+          <view class="capture-rate">
+            <text class="rate-label">Capture Rate</text>
+            <view class="rate-bar-container">
+              <text class="rate-value">{{item.capture_rate}}</text>
+              <view class="rate-bar">
+                <view class="rate-fill" style="width: {{item.ratePercent}}%"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="pokemon-list">
+          <text class="list-title">Varieties</text>
+          <view
+            class="pokemon-item"
+            wx:for="{{item.pokemons}}"
+            wx:for-item="pokemon"
+            wx:key="id"
+            bindtap="goToDetail"
+            data-id="{{pokemon.id}}"
+            data-name="{{pokemon.name}}"
+          >
+            <text class="pokemon-name">{{pokemon.name}}</text>
+            <text class="pokemon-arrow">→</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分页 -->
+      <view class="pagination">
+        <button
+          class="page-btn"
+          disabled="{{page === 1}}"
+          bindtap="prevPage"
+        >
+          ← Previous
+        </button>
+        <text class="page-num">{{page}}</text>
+        <button
+          class="page-btn"
+          disabled="{{!hasMore}}"
+          bindtap="nextPage"
+        >
+          Next →
+        </button>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty" wx:if="{{!loading && searched && results.length === 0}}">
+      <text class="empty-icon">🔍</text>
+      <text class="empty-title">No Pokémon Found</text>
+      <text class="empty-text">Try a different search term</text>
+    </view>
+  </view>
+</view>
